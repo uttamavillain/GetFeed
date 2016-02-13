@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:padding="30dp">
+
+    <TextView
+        android:id="@+id/tvFilterDate"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:paddingRight="35dp"
+        android:text="Begin Date"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/btFilterDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2016/02/11"
+        android:gravity="center"
+        android:layout_toRightOf="@id/tvFilterDate"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:id="@+id/tvSortOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sort"
+        android:gravity="center"
+        android:layout_below="@+id/btFilterDate"
+        android:layout_alignParentStart="true" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rgSort"
+        android:layout_below="@id/btFilterDate"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@+id/btFilterDate">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Oldest"
+            android:id="@+id/rboldest"
+            android:layout_gravity="left"
+            android:gravity="center"
+            android:layout_below="@+id/tvFilterDate" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="newest"
+            android:id="@+id/rbnewest"
+            android:gravity="center"
+            android:layout_gravity="left"
+            android:layout_below="@+id/rboldest" />
+    </RadioGroup>
+
+
+
+    <TextView
+        android:id="@+id/tvNewsDesk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="News Desk"
+        android:gravity="center"
+        android:paddingRight="27dp"
+        android:layout_below="@+id/rgSort" />
+
+    <CheckBox
+        android:id="@+id/cbArts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Arts"
+        android:layout_toRightOf="@id/tvNewsDesk"
+        android:layout_below="@+id/rgSort"
+        android:layout_alignStart="@+id/btFilterDate"/>
+
+    <CheckBox
+        android:id="@+id/cbFasionStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fashion &amp; Style"
+        android:layout_toRightOf="@id/tvNewsDesk"
+        android:layout_below="@+id/cbArts"
+        android:layout_alignStart="@+id/btFilterDate"/>
+
+    <CheckBox
+        android:id="@+id/cbSports"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sports"
+        android:layout_toRightOf="@id/tvNewsDesk"
+        android:layout_below="@+id/cbFasionStyle"
+        android:layout_alignStart="@+id/btFilterDate"/>
+
+    <Button
+        android:id="@+id/btFilterSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Save"
+        android:layout_below="@+id/cbSports"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

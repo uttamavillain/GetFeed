@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GetFeed</string>
+    <string name="action_settings">Settings</string>
+    <string name="search">Search</string>
+    <string name="action_filter">Filter</string>
+    <string name="title_activity_article_browser">ArticleBrowserActivity</string>
+</resources>
