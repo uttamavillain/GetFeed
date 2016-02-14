@@ -1,27 +1,24 @@
 package com.codepath.vijay.getfeed.Activity;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.DatePicker;
-import android.widget.GridView;
 
 import com.codepath.vijay.getfeed.Article;
-import com.codepath.vijay.getfeed.ArticleArrayAdapter;
+import com.codepath.vijay.getfeed.ArticleAdapter;
 import com.codepath.vijay.getfeed.FilterDialog;
 import com.codepath.vijay.getfeed.R;
 import com.loopj.android.http.AsyncHttpClient;
@@ -42,16 +39,17 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
 
     private static final String TAG = SearchActivity.class.getName();
 
-    private GridView gvSearch;
+    private RecyclerView gvSearch;
     private FilterDialog filterDialog;
     private int year, month, date;
     private boolean oldestFirst;
     private boolean isArts, isFashionStyle, isSports;
     private String query;
     private SwipeRefreshLayout swipeContainer;
+    private StaggeredGridLayoutManager mLayoutManager;
 
     private List<Article> articles;
-    ArticleArrayAdapter articleArrayAdapter;
+    ArticleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +61,47 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
         setUPViews();
     }
 
-    private void setUPViews() {
-        gvSearch = (GridView) findViewById(R.id.gvSearch);
-        gvSearch.setNestedScrollingEnabled(true);
-        articles = new ArrayList<Article>();
-        articleArrayAdapter = new ArticleArrayAdapter(this, articles);
-        gvSearch.setAdapter(articleArrayAdapter);
+    private void setUPRecyclerViews() {
         query="";
+        articles = new ArrayList<Article>();
+        gvSearch = (RecyclerView) findViewById(R.id.gvSearch);
+        //gvSearch.setHasFixedSize(true);
+     /*   RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST);
+        gvSearch.addItemDecoration(itemDecoration);*/
+        // Create adapter passing in the sample user data
+        adapter = new ArticleAdapter(articles);
+        // Attach the adapter to the recyclerview to populate items
+        gvSearch.setAdapter(adapter);
+        mLayoutManager =
+                new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        //mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        //layoutManager.scrollToPosition(0);
+        gvSearch.setLayoutManager(mLayoutManager);
+        //gvSearch.setNestedScrollingEnabled(true);
+        gvSearch.addOnScrollListener(new EndlessRecyclerViewScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                Log.d(TAG, "onLoadMore");
+                int curSize = articles.size();
+                loadArticles(page);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+       /* gvSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), ArticleBrowserActivity.class);
+                intent.putExtra("url", articles.get(position).getArticleUrl());
+                startActivity(intent);
+            }
+        });*/
+    }
+
+    private void setUPViews() {
+
+        setUPRecyclerViews();
 
         // Lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
@@ -77,34 +109,8 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                articleArrayAdapter.clear();
+                articles.clear();
                 loadArticles(0);
-            }
-        });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(
-                android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-
-        gvSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), ArticleBrowserActivity.class);
-                intent.putExtra("url", articles.get(position).getArticleUrl());
-                startActivity(intent);
-            }
-        });
-        // Attach the listener to the AdapterView onCreate
-        gvSearch.setOnScrollListener(new EndlessScrollListener() {
-            @Override
-            public boolean onLoadMore(int page, int totalItemsCount) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to your AdapterView
-                loadArticles(page-1);
-                // or customLoadMoreDataFromApi(totalItemsCount);
-                return true; // ONLY if more data is actually being loaded; false otherwise.
             }
         });
 
@@ -113,6 +119,11 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
         date = Calendar.getInstance().get(Calendar.DATE);
         oldestFirst = true;
         isArts = isFashionStyle = isSports = false;
+    }
+
+    public void clearData() {
+        articles.clear(); //clear list
+        adapter.notifyDataSetChanged(); //let your adapter know about the changes and reload view.
     }
 
     @Override
@@ -139,7 +150,7 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String q) {
-                    articleArrayAdapter.clear();
+                    clearData();
                     query = q;
                     loadArticles(0);
                     searchView.clearFocus();
@@ -177,7 +188,7 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
         this.isArts = isArts;
         this.isFashionStyle = isFashionStyle;
         this.isSports = isSports;
-        articleArrayAdapter.clear();
+        clearData();
         loadArticles(0);
     }
 
@@ -203,7 +214,9 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
                 JSONArray articleJsonResult = null;
                 try {
                     articleJsonResult = response.getJSONObject("response").getJSONArray("docs");
-                    articleArrayAdapter.addAll(Article.fromJsonArray(articleJsonResult));
+                    articles.addAll(Article.fromJsonArray(articleJsonResult));
+                    Log.d(TAG, "Number of articles: "+articles.size());
+                    adapter.notifyDataSetChanged();
                     swipeContainer.setRefreshing(false);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -276,6 +289,66 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             // Don't take any action on changed
         }
+    }
+
+    public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
+        // The minimum amount of items to have below your current scroll position
+        // before loading more.
+        private int visibleThreshold = 5;
+        // The current offset index of data you have loaded
+        private int currentPage = 0;
+        // The total number of items in the dataset after the last load
+        private int previousTotalItemCount = 0;
+        // True if we are still waiting for the last set of data to load.
+        private boolean loading = true;
+        // Sets the starting page index
+        private int startingPageIndex = 0;
+
+        private StaggeredGridLayoutManager mLayoutManager;
+
+        public EndlessRecyclerViewScrollListener(StaggeredGridLayoutManager layoutManager) {
+            this.mLayoutManager = layoutManager;
+        }
+
+        // This happens many times a second during a scroll, so be wary of the code you place here.
+        // We are given a few useful parameters to help us work out if we need to load some more data,
+        // but first we check if we are waiting for the previous load to finish.
+        @Override
+        public void onScrolled(RecyclerView view, int dx, int dy) {
+            int mLastVI[] = null;
+            int lastVisibleItem = mLayoutManager.findLastVisibleItemPositions(mLastVI)[0];
+            int totalItemCount = mLayoutManager.getItemCount();
+
+            // If the total item count is zero and the previous isn't, assume the
+            // list is invalidated and should be reset back to initial state
+            if (totalItemCount < previousTotalItemCount) {
+                this.currentPage = this.startingPageIndex;
+                this.previousTotalItemCount = totalItemCount;
+                if (totalItemCount == 0) {
+                    this.loading = true;
+                }
+            }
+            // If it’s still loading, we check to see if the dataset count has
+            // changed, if so we conclude it has finished loading and update the current page
+            // number and total item count.
+            if (loading && (totalItemCount > previousTotalItemCount)) {
+                loading = false;
+                previousTotalItemCount = totalItemCount;
+            }
+
+            // If it isn’t currently loading, we check to see if we have breached
+            // the visibleThreshold and need to reload more data.
+            // If we do need to reload some more data, we execute onLoadMore to fetch the data.
+            if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                currentPage++;
+                onLoadMore(currentPage, totalItemCount);
+                loading = true;
+            }
+        }
+
+        // Defines the process for actually loading more data based on page
+        public abstract void onLoadMore(int page, int totalItemsCount);
+
     }
 
     /** Called when the activity is about to become visible. */
