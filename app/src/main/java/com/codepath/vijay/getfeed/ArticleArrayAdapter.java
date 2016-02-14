@@ -27,7 +27,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         Article article = this.getItem(position);
         if(convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.item_article_result, parent, false);
+            convertView = inflater.inflate(R.layout.item_article_result1, parent, false);
         }
         TextView tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
         ImageView ivImage = (ImageView) convertView.findViewById(R.id.ivImage);

@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -66,16 +67,17 @@ public class SearchActivity extends AppCompatActivity implements DatePickerDialo
         articles = new ArrayList<Article>();
         gvSearch = (RecyclerView) findViewById(R.id.gvSearch);
         //gvSearch.setHasFixedSize(true);
-     /*   RecyclerView.ItemDecoration itemDecoration = new
+/*        RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST);
-        gvSearch.addItemDecoration(itemDecoration);*/
+        gvSearch.addItemDecoration(itemDecoration);
+        gvSearch.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL_LIST));*/
         // Create adapter passing in the sample user data
         adapter = new ArticleAdapter(articles);
         // Attach the adapter to the recyclerview to populate items
         gvSearch.setAdapter(adapter);
         mLayoutManager =
                 new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-        //mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         //layoutManager.scrollToPosition(0);
         gvSearch.setLayoutManager(mLayoutManager);
         //gvSearch.setNestedScrollingEnabled(true);
